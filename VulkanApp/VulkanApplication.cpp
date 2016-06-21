@@ -57,6 +57,7 @@ void VulkanApplication::impl::init()
 
 void VulkanApplication::impl::shutdown()
 {
+	Window.reset();
 	LogicalDevice.reset();
 	PhysicalDevices.clear();
 	Instance.reset();

@@ -19,14 +19,20 @@ public:
 		destroy_window();
 	}
 
-	struct info_
+	const int Max_Name_Length = 0;
+
+	template<int max_name_length>
+	struct info_data
 	{
 		HINSTANCE connection;       // hInstance - Windows Instance
-		wchar_t name[80];				// Name to put on the window/icon
+		wchar_t name[max_name_length];				// Name to put on the window/icon
 		HWND window;                // hWnd - window handle
 		int width = 700;
 		int height = 500;
-	} info;
+
+		constexpr auto get_max_name_length() const { return max_name_length; }
+	};
+	info_data<80> info;
 
 	std::string window_name;
 
@@ -60,7 +66,7 @@ public:
 		assert(info.height > 0);
 
 		info.connection = GetModuleHandle(nullptr);
-		wsprintf(info.name, L"Vulka Atlas Window");
+		wsprintf(info.name, L"Vulkan Atlas Window");
 
 		// Initialize the window class structure:
 		win_class.cbSize = sizeof(WNDCLASSEX);
@@ -114,8 +120,6 @@ public:
 
 	void destroy_window()
 	{
-		// TODO not ready yet
-		//vkDestroySurfaceKHR(info.inst, info.surface, NULL);
 		DestroyWindow(info.window);
 	}
 };
