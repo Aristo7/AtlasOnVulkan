@@ -2,13 +2,22 @@
 //
 
 #include "Precompiled.h"
-#include "VulkanEngine.h"
+#include "VulkanApplication.h"
 #include <ostream>
 #include <iostream>
+#include "VException.h"
+#include "VLog.h"
 
 int main()
 {
-	VulkanEngine root;
+	try
+	{
+		vulkan::VulkanApplication root;
+	}
+	catch (vulkan::VException& ve)
+	{
+		vulkan::log() << "Hit exception: " << ve.what() << std::endl;
+	}
 
 	std::cout << "Finished running. Hit ENTER to quit..." << std::endl;
 

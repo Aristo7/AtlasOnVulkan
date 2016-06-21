@@ -1,21 +1,26 @@
 #pragma once
+
+#include "VLog.h"
 #include <exception>
 #include <string>
 
-class VException : public std::exception
+namespace vulkan
 {
-public:
-	explicit VException(const std::string& message) : Message(message)
+	class VException : public std::exception
 	{
-		log() << message << std::endl;
-	}
-	~VException() {}
+	public:
+		explicit VException(const std::string& message) : Message(message)
+		{
+			log() << message << std::endl;
+		}
+		~VException() {}
 
-	char const* what() const override 
-	{
-		return Message.c_str();
-	}
+		char const* what() const override
+		{
+			return Message.c_str();
+		}
 
-private:
-	std::string Message;
-};
+	private:
+		std::string Message;
+	};
+}

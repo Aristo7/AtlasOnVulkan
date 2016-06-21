@@ -2,7 +2,10 @@
 #include <string>
 #include <iostream>
 
-inline auto& log()
+namespace vulkan
 {
-	return std::cout;
+	inline auto& log()
+	{
+		return std::cout;
+	}
 }
