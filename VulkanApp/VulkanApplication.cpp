@@ -7,6 +7,7 @@
 #include "VLog.h"
 #include "VulkanInstance.h"
 #include "VulkanDevice.h"
+#include "VulkanWindow.h"
 
 using namespace vulkan;
 using std::make_unique;
@@ -37,6 +38,8 @@ private:
 	unique_ptr<VulkanInstance> Instance;
 	vector<std::shared_ptr<VulkanPhysicalDevice>> PhysicalDevices;
 	unique_ptr<VulkanDevice> LogicalDevice;
+
+	unique_ptr<VulkanWindow> Window;
 };
 
 void VulkanApplication::impl::init()
@@ -44,9 +47,12 @@ void VulkanApplication::impl::init()
 	Instance = make_unique<VulkanInstance>(AppName);
 
 	PhysicalDevices = Instance->enumeratePhysicalDevices();
+	assert(PhysicalDevices.size() > 0);
 	log() << "GPUs= " << PhysicalDevices.size() << std::endl;
 
 	LogicalDevice = make_unique<VulkanDevice>(PhysicalDevices[0]);
+
+	Window = make_unique<VulkanWindow>(AppName);
 }
 
 void VulkanApplication::impl::shutdown()
