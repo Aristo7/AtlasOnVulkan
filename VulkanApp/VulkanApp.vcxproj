@@ -148,6 +148,8 @@
     <ClInclude Include="AutoModule.h" />
     <ClInclude Include="Precompiled.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VException.h" />
+    <ClInclude Include="VLog.h" />
     <ClInclude Include="VulkanEngine.h" />
   </ItemGroup>
   <ItemGroup>

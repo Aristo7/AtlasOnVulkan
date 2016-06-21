@@ -30,6 +30,12 @@
     <ClInclude Include="AutoModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VulkanApp.cpp">
