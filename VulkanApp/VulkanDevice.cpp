@@ -8,7 +8,7 @@ using namespace vulkan;
 class VulkanDevice::impl
 {
 public:
-	impl(std::shared_ptr<VulkanPhysicalDevice> device) : PhysicalDevice(device)
+	explicit impl(std::shared_ptr<VulkanPhysicalDevice> device) : PhysicalDevice(device)
 	{
 		auto queue_props = PhysicalDevice->getQueueFamilyProperties();
 
@@ -41,7 +41,7 @@ public:
 		device_info.ppEnabledLayerNames = nullptr;
 		device_info.pEnabledFeatures = nullptr;
 
-		auto res = vkCreateDevice(PhysicalDevice->getPhysicalDevice(), &device_info, NULL, &LogicalDevice);
+		auto res = vkCreateDevice(PhysicalDevice->getPhysicalDevice(), &device_info, nullptr, &LogicalDevice);
 		assert(res == VK_SUCCESS);
 
 		log() << "Created a logical device\n";
