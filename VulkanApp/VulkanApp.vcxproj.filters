@@ -24,12 +24,21 @@
     <ClInclude Include="Precompiled.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="VulkanEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VulkanApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Precompiled.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
