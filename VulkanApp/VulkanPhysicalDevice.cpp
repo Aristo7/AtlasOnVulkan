@@ -41,3 +41,8 @@ std::vector<VkQueueFamilyProperties> VulkanPhysicalDevice::getQueueFamilyPropert
 {
 	return pimpl->getQueueFamilyProperties();
 }
+
+VkPhysicalDevice VulkanPhysicalDevice::getPhysicalDevice() const
+{
+	return pimpl->Device;
+}

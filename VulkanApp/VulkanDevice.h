@@ -6,7 +6,7 @@ namespace vulkan
 	class VulkanDevice
 	{
 	public:
-		VulkanDevice(std::shared_ptr<VulkanPhysicalDevice> device, VkDeviceCreateInfo& info);
+		explicit VulkanDevice(std::shared_ptr<VulkanPhysicalDevice> device);
 		~VulkanDevice();
 
 	private:
