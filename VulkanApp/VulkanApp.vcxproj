@@ -151,6 +151,9 @@
     <ClInclude Include="VException.h" />
     <ClInclude Include="VLog.h" />
     <ClInclude Include="VulkanApplication.h" />
+    <ClInclude Include="VulkanDevice.h" />
+    <ClInclude Include="VulkanInstance.h" />
+    <ClInclude Include="VulkanPhysicalDevice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Precompiled.cpp">
@@ -161,6 +164,9 @@
     </ClCompile>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="VulkanApplication.cpp" />
+    <ClCompile Include="VulkanDevice.cpp" />
+    <ClCompile Include="VulkanInstance.cpp" />
+    <ClCompile Include="VulkanPhysicalDevice.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
