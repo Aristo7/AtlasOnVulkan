@@ -13,6 +13,8 @@ namespace vulkan
 		~VulkanInstance();
 
 		std::vector<std::shared_ptr<VulkanPhysicalDevice>> enumeratePhysicalDevices();
+		VkInstance getInstance() const;
+
 	private:
 		class impl; std::unique_ptr<impl> pimpl;
 	};	

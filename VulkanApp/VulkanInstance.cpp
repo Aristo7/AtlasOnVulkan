@@ -96,3 +96,8 @@ std::vector<std::shared_ptr<VulkanPhysicalDevice>> VulkanInstance::enumeratePhys
 {
 	return pimpl->enumeratePhysicalDevices();
 }
+
+VkInstance VulkanInstance::getInstance() const
+{
+	return pimpl->inst;
+}

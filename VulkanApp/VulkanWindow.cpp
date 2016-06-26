@@ -21,6 +21,8 @@ public:
 
 	const int Max_Name_Length = 0;
 
+	WNDCLASSEX win_class = {};
+
 	template<int max_name_length>
 	struct info_data
 	{
@@ -60,8 +62,7 @@ public:
 	}
 
 	void init_window()
-	{
-		WNDCLASSEX win_class;
+	{	
 		assert(info.width > 0);
 		assert(info.height > 0);
 
@@ -131,4 +132,14 @@ VulkanWindow::VulkanWindow(const std::string& window_name)
 
 VulkanWindow::~VulkanWindow()
 {
+}
+
+HINSTANCE VulkanWindow::getInstanceHandle() const
+{
+	return pimpl->win_class.hInstance;
+}
+
+HWND VulkanWindow::setWindowHandle() const
+{
+	return pimpl->info.window;
 }

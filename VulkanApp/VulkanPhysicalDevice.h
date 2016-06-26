@@ -4,6 +4,8 @@
 
 namespace vulkan
 {
+	class VulkanSurface;
+
 	class VulkanPhysicalDevice
 	{
 		friend class VulkanDevice;

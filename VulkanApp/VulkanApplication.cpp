@@ -8,12 +8,14 @@
 #include "VulkanInstance.h"
 #include "VulkanDevice.h"
 #include "VulkanWindow.h"
+#include "VulkanSurface.h"
 
 using namespace vulkan;
-using std::make_unique;
+using std::make_shared;
 using std::vector;
 using std::string;
 using std::unique_ptr;
+using std::shared_ptr;
 
 class VulkanApplication::impl
 {
@@ -35,71 +37,37 @@ private:
 	AutoModule VulkanLibrary;
 	std::string AppName{ "Atlas On Vulkan" };
 
-	unique_ptr<VulkanInstance> Instance;
+	shared_ptr<VulkanInstance> Instance;
 	vector<std::shared_ptr<VulkanPhysicalDevice>> PhysicalDevices;
-	unique_ptr<VulkanDevice> LogicalDevice;
+	shared_ptr<VulkanDevice> LogicalDevice;
 
-	unique_ptr<VulkanWindow> Window;
+	shared_ptr<VulkanWindow> Window;
+	shared_ptr<VulkanSurface> Surface;
 };
 
 void VulkanApplication::impl::init()
 {
-	Instance = make_unique<VulkanInstance>(AppName);
+	Instance = make_shared<VulkanInstance>(AppName);
 
 	PhysicalDevices = Instance->enumeratePhysicalDevices();
 	assert(PhysicalDevices.size() > 0);
 	log() << "GPUs= " << PhysicalDevices.size() << std::endl;
 
-	LogicalDevice = make_unique<VulkanDevice>(PhysicalDevices[0]);
+	LogicalDevice = make_shared<VulkanDevice>(PhysicalDevices[0]);
 
-	Window = make_unique<VulkanWindow>(AppName);
+	Window = make_shared<VulkanWindow>(AppName);
 
 	/* VULKAN_KEY_START */
 	// Construct the surface description:
-	VkWin32SurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = nullptr;
-	createInfo.hinstance = info.connection;
-	createInfo.hwnd = info.window;
-	auto res = vkCreateWin32SurfaceKHR(info.inst, &createInfo, nullptr, &info.surface);
-	assert(res == VK_SUCCESS);
+	Surface = make_shared<VulkanSurface>(Instance, Window);
 
-	// Iterate over each queue to learn whether it supports presenting:
-	VkBool32 *supportsPresent =
-		(VkBool32 *)malloc(info.queue_count * sizeof(VkBool32));
-	for (uint32_t i = 0; i < info.queue_count; i++) {
-		vkGetPhysicalDeviceSurfaceSupportKHR(info.gpus[0], i, info.surface,
-			&supportsPresent[i]);
-	}
+	LogicalDevice->connectWithSurface(Surface);
 
-	// Search for a graphics queue and a present queue in the array of queue
-	// families, try to find one that supports both
-	uint32_t graphicsQueueNodeIndex = UINT32_MAX;
-	for (uint32_t i = 0; i < info.queue_count; i++) {
-		if ((info.queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
-			if (supportsPresent[i] == VK_TRUE) {
-				graphicsQueueNodeIndex = i;
-				break;
-			}
-		}
-	}
-	free(supportsPresent);
-
-	// Generate error if could not find a queue that supports both a graphics
-	// and present
-	if (graphicsQueueNodeIndex == UINT32_MAX) {
-		std::cout << "Could not find a queue that supports both graphics and "
-			"present\n";
-		exit(-1);
-	}
-
-	info.graphics_queue_family_index = graphicsQueueNodeIndex;
-
-	init_device(info);
+	//init_device(info);
 
 	// Get the list of VkFormats that are supported:
 	uint32_t formatCount;
-	res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface,
+	auto res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface,
 		&formatCount, nullptr);
 	assert(res == VK_SUCCESS);
 	VkSurfaceFormatKHR *surfFormats =

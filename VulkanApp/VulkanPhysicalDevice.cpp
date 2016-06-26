@@ -1,6 +1,7 @@
 #include "Precompiled.h"
 #include "VulkanPhysicalDevice.h"
 #include <cassert>
+#include "VLog.h"
 
 using namespace vulkan;
 

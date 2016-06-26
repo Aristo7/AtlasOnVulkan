@@ -25,3 +25,4 @@
 // additional headers
 #include "vulkan/vulkan.h"
 #include <memory>
+#include <cassert>

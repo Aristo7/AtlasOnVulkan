@@ -2,6 +2,7 @@
 #include "VulkanDevice.h"
 #include <cassert>
 #include "VLog.h"
+#include "VulkanSurface.h"
 
 using namespace vulkan;
 
@@ -57,6 +58,42 @@ public:
 
 	VkDeviceQueueCreateInfo queue_info = {};
 	VkDeviceCreateInfo device_info = {};
+
+	unsigned int graphics_queue_family_index = UINT32_MAX;
+
+	void connectWithSurface(std::shared_ptr<VulkanSurface> surface)
+	{
+		// Iterate over each queue to learn whether it supports presenting:
+		std::vector<VkBool32> supportsPresent(queue_info.queueCount);
+
+		for (uint32_t i = 0; i < queue_info.queueCount; i++) 
+		{
+			vkGetPhysicalDeviceSurfaceSupportKHR(PhysicalDevice->getPhysicalDevice(), i, surface->getSurface(), &supportsPresent[i]);
+		}
+
+		// Search for a graphics queue and a present queue in the array of queue
+		// families, try to find one that supports both
+		auto graphicsQueueNodeIndex = UINT32_MAX;
+		auto queue_props = PhysicalDevice->getQueueFamilyProperties();
+		for (uint32_t i = 0; i < queue_info.queueCount; i++) {
+			if ((queue_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
+				if (supportsPresent[i] == VK_TRUE) {
+					graphicsQueueNodeIndex = i;
+					break;
+				}
+			}
+		}
+
+		// Generate error if could not find a queue that supports both a graphics
+		// and present
+		if (graphicsQueueNodeIndex == UINT32_MAX) {
+			vulkan::log() << "Could not find a queue that supports both graphics and "
+				"present\n";
+			exit(-1);
+		}
+
+		graphics_queue_family_index = graphicsQueueNodeIndex;
+	}
 };
 
 VulkanDevice::VulkanDevice(std::shared_ptr<VulkanPhysicalDevice> device)
@@ -67,4 +104,9 @@ VulkanDevice::VulkanDevice(std::shared_ptr<VulkanPhysicalDevice> device)
 VulkanDevice::~VulkanDevice()
 {
 	// empty
+}
+
+void VulkanDevice::connectWithSurface(std::shared_ptr<VulkanSurface> surface)
+{
+	pimpl->connectWithSurface(surface);
 }
