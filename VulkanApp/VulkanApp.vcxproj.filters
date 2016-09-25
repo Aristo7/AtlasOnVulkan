@@ -42,13 +42,13 @@
     <ClInclude Include="VulkanPhysicalDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="VulkanWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VulkanSurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VulkanLogicalDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,14 +68,14 @@
     <ClCompile Include="VulkanPhysicalDevice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanDevice.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VulkanWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VulkanSurface.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VulkanLogicalDevice.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

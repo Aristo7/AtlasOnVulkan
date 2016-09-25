@@ -1,10 +1,12 @@
 ﻿#pragma once
 #include <memory>
+#include <vector>
 
 namespace vulkan
 {
 	class VulkanInstance;
 	class VulkanWindow;
+	class VulkanLogicalDevice;
 
 	class VulkanSurface
 	{
@@ -13,6 +15,10 @@ namespace vulkan
 		~VulkanSurface();
 
 		VkSurfaceKHR getSurface() const;
+
+		VkSurfaceCapabilitiesKHR getSurfaceCapabilitiesKHR(std::shared_ptr<VulkanLogicalDevice> gpu) const;
+
+		std::vector<VkPresentModeKHR> getPresentModesKHR(std::shared_ptr<VulkanLogicalDevice> gpu) const;
 
 	private:
 		class impl; std::unique_ptr<impl> pimpl;

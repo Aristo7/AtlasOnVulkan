@@ -11,6 +11,9 @@ namespace vulkan
 		HINSTANCE getInstanceHandle() const;
 		HWND setWindowHandle() const;
 
+		int getWidth() const;
+		int getHeight() const;
+
 	private:
 		class impl; std::unique_ptr<impl> pimpl;
 	};	

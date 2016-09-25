@@ -2,6 +2,7 @@
 #include "VulkanSurface.h"
 #include "VulkanWindow.h"
 #include "VulkanInstance.h"
+#include "VulkanLogicalDevice.h"
 
 using namespace vulkan;
 
@@ -40,4 +41,29 @@ VulkanSurface::~VulkanSurface()
 VkSurfaceKHR VulkanSurface::getSurface() const
 {
 	return pimpl->Surface;
+}
+
+VkSurfaceCapabilitiesKHR VulkanSurface::getSurfaceCapabilitiesKHR(std::shared_ptr<VulkanLogicalDevice> gpu) const
+{
+	VkSurfaceCapabilitiesKHR catabilitiesKHR;
+
+	auto res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu->getPhysicalDevice(), pimpl->Surface,
+		&catabilitiesKHR);
+	assert(res == VK_SUCCESS);
+
+	return catabilitiesKHR;
+}
+
+std::vector<VkPresentModeKHR> VulkanSurface::getPresentModesKHR(std::shared_ptr<VulkanLogicalDevice> gpu) const
+{
+	uint32_t presentModeCount;
+	auto res = vkGetPhysicalDeviceSurfacePresentModesKHR(gpu->getPhysicalDevice(), pimpl->Surface, &presentModeCount, nullptr);
+	assert(res == VK_SUCCESS);
+
+	std::vector<VkPresentModeKHR> modesKHR(presentModeCount);
+
+	res = vkGetPhysicalDeviceSurfacePresentModesKHR(gpu->getPhysicalDevice(), pimpl->Surface, &presentModeCount, modesKHR.data());
+	assert(res == VK_SUCCESS);
+
+	return modesKHR;
 }

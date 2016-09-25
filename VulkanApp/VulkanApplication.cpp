@@ -6,7 +6,7 @@
 
 #include "VLog.h"
 #include "VulkanInstance.h"
-#include "VulkanDevice.h"
+#include "VulkanLogicalDevice.h"
 #include "VulkanWindow.h"
 #include "VulkanSurface.h"
 
@@ -39,7 +39,7 @@ private:
 
 	shared_ptr<VulkanInstance> Instance;
 	vector<std::shared_ptr<VulkanPhysicalDevice>> PhysicalDevices;
-	shared_ptr<VulkanDevice> LogicalDevice;
+	shared_ptr<VulkanLogicalDevice> LogicalDevice;
 
 	shared_ptr<VulkanWindow> Window;
 	shared_ptr<VulkanSurface> Surface;
@@ -53,7 +53,7 @@ void VulkanApplication::impl::init()
 	assert(PhysicalDevices.size() > 0);
 	log() << "GPUs= " << PhysicalDevices.size() << std::endl;
 
-	LogicalDevice = make_shared<VulkanDevice>(PhysicalDevices[0]);
+	LogicalDevice = make_shared<VulkanLogicalDevice>(PhysicalDevices[0]);
 
 	Window = make_shared<VulkanWindow>(AppName);
 
@@ -66,53 +66,25 @@ void VulkanApplication::impl::init()
 	//init_device(info);
 
 	// Get the list of VkFormats that are supported:
-	uint32_t formatCount;
-	auto res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface,
-		&formatCount, nullptr);
-	assert(res == VK_SUCCESS);
-	VkSurfaceFormatKHR *surfFormats =
-		(VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-	res = vkGetPhysicalDeviceSurfaceFormatsKHR(info.gpus[0], info.surface,
-		&formatCount, surfFormats);
-	assert(res == VK_SUCCESS);
-	// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
-	// the surface has no preferred format.  Otherwise, at least one
-	// supported format will be returned.
-	if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
-		info.format = VK_FORMAT_B8G8R8A8_UNORM;
-	}
-	else {
-		assert(formatCount >= 1);
-		info.format = surfFormats[0].format;
-	}
-	free(surfFormats);
+
+	auto supported_format = LogicalDevice->findSupportedImageFormat(Surface);
 
 	VkSurfaceCapabilitiesKHR surfCapabilities;
+	surfCapabilities = Surface->getSurfaceCapabilitiesKHR(LogicalDevice);
 
-	res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(info.gpus[0], info.surface,
-		&surfCapabilities);
-	assert(res == VK_SUCCESS);
-
-	uint32_t presentModeCount;
-	res = vkGetPhysicalDeviceSurfacePresentModesKHR(info.gpus[0], info.surface,
-		&presentModeCount, nullptr);
-	assert(res == VK_SUCCESS);
-	VkPresentModeKHR *presentModes =
-		(VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
-
-	res = vkGetPhysicalDeviceSurfacePresentModesKHR(
-		info.gpus[0], info.surface, &presentModeCount, presentModes);
-	assert(res == VK_SUCCESS);
+	auto modesKHR = Surface->getPresentModesKHR(LogicalDevice);
 
 	VkExtent2D swapChainExtent;
 	// width and height are either both -1, or both not -1.
-	if (surfCapabilities.currentExtent.width == (uint32_t)-1) {
+	if (surfCapabilities.currentExtent.width == static_cast<uint32_t>(-1)) 
+	{
 		// If the surface size is undefined, the size is set to
 		// the size of the images requested.
-		swapChainExtent.width = info.width;
-		swapChainExtent.height = info.height;
+		swapChainExtent.width = Window->getWidth();
+		swapChainExtent.height = Window->getHeight();
 	}
-	else {
+	else 
+	{
 		// If the surface size is defined, the swap chain size must match
 		swapChainExtent = surfCapabilities.currentExtent;
 	}
@@ -121,14 +93,17 @@ void VulkanApplication::impl::init()
 	// tearing mode.  If not, try IMMEDIATE which will usually be available,
 	// and is fastest (though it tears).  If not, fall back to FIFO which is
 	// always available.
-	VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-	for (size_t i = 0; i < presentModeCount; i++) {
-		if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+	auto swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+	for(auto mode : modesKHR)
+	{
+		if (mode == VK_PRESENT_MODE_MAILBOX_KHR) 
+		{
 			swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
 			break;
 		}
 		if ((swapchainPresentMode != VK_PRESENT_MODE_MAILBOX_KHR) &&
-			(presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)) {
+			(mode == VK_PRESENT_MODE_IMMEDIATE_KHR)) 
+		{
 			swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 		}
 	}
@@ -156,9 +131,9 @@ void VulkanApplication::impl::init()
 	VkSwapchainCreateInfoKHR swap_chain = {};
 	swap_chain.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swap_chain.pNext = nullptr;
-	swap_chain.surface = info.surface;
+	swap_chain.surface = Surface->getSurface();
 	swap_chain.minImageCount = desiredNumberOfSwapChainImages;
-	swap_chain.imageFormat = info.format;
+	swap_chain.imageFormat = supported_format;
 	swap_chain.imageExtent.width = swapChainExtent.width;
 	swap_chain.imageExtent.height = swapChainExtent.height;
 	swap_chain.preTransform = preTransform;
@@ -173,14 +148,12 @@ void VulkanApplication::impl::init()
 	swap_chain.queueFamilyIndexCount = 0;
 	swap_chain.pQueueFamilyIndices = nullptr;
 
-	res =
-		vkCreateSwapchainKHR(info.device, &swap_chain, nullptr, &info.swap_chain);
+	auto res = vkCreateSwapchainKHR(info.device, &swap_chain, nullptr, &info.swap_chain);
 	assert(res == VK_SUCCESS);
 
 	res = vkGetSwapchainImagesKHR(info.device, info.swap_chain,
 		&info.swapchainImageCount, nullptr);
 	assert(res == VK_SUCCESS);
-
 	VkImage *swapchainImages =
 		(VkImage *)malloc(info.swapchainImageCount * sizeof(VkImage));
 	assert(swapchainImages);

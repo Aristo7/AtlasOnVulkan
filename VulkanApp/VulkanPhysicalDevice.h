@@ -8,7 +8,7 @@ namespace vulkan
 
 	class VulkanPhysicalDevice
 	{
-		friend class VulkanDevice;
+		friend class VulkanLogicalDevice;
 	public:
 		explicit VulkanPhysicalDevice(const VkPhysicalDevice& device);
 		~VulkanPhysicalDevice();

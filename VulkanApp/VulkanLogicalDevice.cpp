@@ -1,12 +1,12 @@
 #include "Precompiled.h"
-#include "VulkanDevice.h"
+#include "VulkanLogicalDevice.h"
 #include <cassert>
 #include "VLog.h"
 #include "VulkanSurface.h"
 
 using namespace vulkan;
 
-class VulkanDevice::impl
+class VulkanLogicalDevice::impl
 {
 public:
 	explicit impl(std::shared_ptr<VulkanPhysicalDevice> device) : PhysicalDevice(device)
@@ -94,19 +94,63 @@ public:
 
 		graphics_queue_family_index = graphicsQueueNodeIndex;
 	}
+
+	VkFormat findSupportedImageFormat(std::shared_ptr<VulkanSurface> surface)
+	{
+
+		// Get the list of VkFormats that are supported:
+		uint32_t formatCount;
+		auto res = vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice->getPhysicalDevice(), surface->getSurface(), &formatCount, nullptr);
+		assert(res == VK_SUCCESS);
+
+		std::vector<VkSurfaceFormatKHR> surfFormats(formatCount);
+		/*VkSurfaceFormatKHR *surfFormats =
+			(VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));*/
+
+		res = vkGetPhysicalDeviceSurfaceFormatsKHR(PhysicalDevice->getPhysicalDevice(), surface->getSurface(), &formatCount, surfFormats.data());
+		assert(res == VK_SUCCESS);
+
+		// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+		// the surface has no preferred format.  Otherwise, at least one
+		// supported format will be returned.
+		if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED)
+		{
+			return VK_FORMAT_B8G8R8A8_UNORM;
+		}
+		else
+		{
+			assert(formatCount >= 1);
+			return surfFormats[0].format;
+		}
+	}
 };
 
-VulkanDevice::VulkanDevice(std::shared_ptr<VulkanPhysicalDevice> device)
+VulkanLogicalDevice::VulkanLogicalDevice(std::shared_ptr<VulkanPhysicalDevice> device)
 {
 	pimpl = std::make_unique<impl>(device);
 }
 
-VulkanDevice::~VulkanDevice()
+VulkanLogicalDevice::~VulkanLogicalDevice()
 {
 	// empty
 }
 
-void VulkanDevice::connectWithSurface(std::shared_ptr<VulkanSurface> surface)
+void VulkanLogicalDevice::connectWithSurface(std::shared_ptr<VulkanSurface> surface)
 {
 	pimpl->connectWithSurface(surface);
+}
+
+VkFormat VulkanLogicalDevice::findSupportedImageFormat(std::shared_ptr<VulkanSurface> surface)
+{
+	return pimpl->findSupportedImageFormat(surface);
+}
+
+VkDevice VulkanLogicalDevice::getLogicalDevice() const
+{
+	return pimpl->LogicalDevice;
+}
+
+VkPhysicalDevice VulkanLogicalDevice::getPhysicalDevice() const
+{
+	return pimpl->PhysicalDevice->getPhysicalDevice();
 }

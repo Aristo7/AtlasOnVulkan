@@ -143,3 +143,13 @@ HWND VulkanWindow::setWindowHandle() const
 {
 	return pimpl->info.window;
 }
+
+int VulkanWindow::getWidth() const
+{
+	return pimpl->info.width;
+}
+
+int VulkanWindow::getHeight() const
+{
+	return pimpl->info.height;
+}
